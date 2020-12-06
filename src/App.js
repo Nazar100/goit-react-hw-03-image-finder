@@ -1,25 +1,110 @@
-import logo from './logo.svg';
-import './App.css';
+import React, { Component } from 'react';
+import Loader from 'react-loader-spinner';
 
-function App() {
-  return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
-  );
+import './App.css';
+import Searchbar from './components/Searchbar/Searchbar';
+import photosApi from './services/SearchPhotos';
+import ImageGallery from './components/ImageGallery/ImageGallery';
+import Button from './components/Button/Button';
+import Modal from './components/Modal/Modal';
+
+class App extends Component {
+  state = {
+    photos: [],
+    currentPage: 1,
+    searchQuery: '',
+    showModal: false,
+    largeUrl: '',
+    error: null,
+    isLoading: false,
+  };
+
+  componentDidUpdate(prevProps, prevState) {
+    if (prevState.searchQuery !== this.state.searchQuery) {
+      this.fetchPhotos();
+    }
+  }
+
+  onChangeQuery = query => {
+    this.setState({
+      searchQuery: query,
+      currentPage: 1,
+      photos: [],
+      error: null,
+    });
+  };
+
+  fetchPhotos = () => {
+    const { currentPage, searchQuery } = this.state;
+    const options = { searchQuery, currentPage };
+
+    this.setState({ isLoading: true });
+
+    photosApi
+      .fetchPhotos(options)
+      .then(photos => {
+        this.setState(prevState => ({
+          photos: [...prevState.photos, ...photos],
+          currentPage: prevState.currentPage + 1,
+        }));
+      })
+      .catch(error => this.setState({ error }))
+      .finally(() => {
+        this.setState({ isLoading: false });
+        this.scrollDown();
+      });
+  };
+
+  toggleModal = () => {
+    this.setState(({ showModal }) => ({
+      showModal: !showModal,
+    }));
+  };
+
+  openLargePhoto = e => {
+    let url = e.target.dataset.url;
+    this.setState({
+      largeUrl: url,
+    });
+  };
+
+  scrollDown = () => {
+    window.scrollTo({
+      top: document.documentElement.scrollHeight,
+      behavior: 'smooth',
+    });
+  };
+
+  render() {
+    const { photos, showModal, largeUrl, isLoading } = this.state;
+    const shouldRenderLoadMoreButton = photos.length > 0 && !isLoading;
+
+    return (
+      <>
+        <Searchbar onSubmit={this.onChangeQuery} />
+        <ImageGallery
+          photos={photos}
+          openModal={this.toggleModal}
+          openLargePhoto={this.openLargePhoto}
+        />
+        {isLoading && (
+          <Loader
+            className="Loader"
+            type="Audio"
+            color="#00BFFF"
+            height={100}
+            width={100}
+          />
+        )}
+        {shouldRenderLoadMoreButton && <Button onClick={this.fetchPhotos} />}
+        {showModal && (
+          <Modal onClose={this.toggleModal}>
+            <img src={largeUrl} alt="big-p" />
+          </Modal>
+        )}
+      </>
+    );
+  }
 }
 
 export default App;
