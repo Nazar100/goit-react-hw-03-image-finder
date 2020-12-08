@@ -3,7 +3,7 @@ import Loader from 'react-loader-spinner';
 
 import './App.css';
 import Searchbar from './components/Searchbar/Searchbar';
-import photosApi from './services/SearchPhotos';
+import fetchPhotos from './services/SearchPhotos';
 import ImageGallery from './components/ImageGallery/ImageGallery';
 import Button from './components/Button/Button';
 import Modal from './components/Modal/Modal';
@@ -40,8 +40,7 @@ class App extends Component {
 
     this.setState({ isLoading: true });
 
-    photosApi
-      .fetchPhotos(options)
+    fetchPhotos(options)
       .then(photos => {
         this.setState(prevState => ({
           photos: [...prevState.photos, ...photos],
@@ -51,6 +50,7 @@ class App extends Component {
       .catch(error => this.setState({ error }))
       .finally(() => {
         this.setState({ isLoading: false });
+
         this.scrollDown();
       });
   };
@@ -61,18 +61,20 @@ class App extends Component {
     }));
   };
 
-  openLargePhoto = e => {
-    let url = e.target.dataset.url;
+  openLargePhoto = ({ target }) => {
+    let url = target.dataset.url;
     this.setState({
       largeUrl: url,
     });
   };
 
   scrollDown = () => {
-    window.scrollTo({
-      top: document.documentElement.scrollHeight,
-      behavior: 'smooth',
-    });
+    if (this.state.currentPage > 2) {
+      window.scrollTo({
+        top: document.documentElement.scrollHeight,
+        behavior: 'smooth',
+      });
+    }
   };
 
   render() {
@@ -97,11 +99,7 @@ class App extends Component {
           />
         )}
         {shouldRenderLoadMoreButton && <Button onClick={this.fetchPhotos} />}
-        {showModal && (
-          <Modal onClose={this.toggleModal}>
-            <img src={largeUrl} alt="big-p" />
-          </Modal>
-        )}
+        {showModal && <Modal largeUrl={largeUrl} onClose={this.toggleModal} />}
       </>
     );
   }

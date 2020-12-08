@@ -12,4 +12,4 @@ const fetchPhotos = ({ searchQuery, currentPage }) => {
     });
 };
 
-export default { fetchPhotos };
+export default fetchPhotos;

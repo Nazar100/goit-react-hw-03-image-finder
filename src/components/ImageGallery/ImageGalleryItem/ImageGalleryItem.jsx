@@ -1,3 +1,5 @@
+import PropTypes from 'prop-types';
+
 export default function ImageGalleryItem({
   url,
   openModal,
@@ -14,3 +16,10 @@ export default function ImageGalleryItem({
     />
   );
 }
+
+ImageGalleryItem.propTypes = {
+  url: PropTypes.string.isRequired,
+  openModal: PropTypes.func.isRequired,
+  largeUrl: PropTypes.string.isRequired,
+  category: PropTypes.string,
+};

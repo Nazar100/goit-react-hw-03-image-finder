@@ -1,3 +1,5 @@
+import PropTypes, { shape } from 'prop-types';
+
 import ImageGalleryItem from './ImageGalleryItem/ImageGalleryItem';
 
 export default function ImageGallery({ photos, openModal, openLargePhoto }) {
@@ -22,3 +24,9 @@ export default function ImageGallery({ photos, openModal, openLargePhoto }) {
     </ul>
   );
 }
+
+ImageGallery.propTypes = {
+  photos: PropTypes.arrayOf(shape).isRequired,
+  openModal: PropTypes.func.isRequired,
+  openLargePhoto: PropTypes.func.isRequired,
+};
