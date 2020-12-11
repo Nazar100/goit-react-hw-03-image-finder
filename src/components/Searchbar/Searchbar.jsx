@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
+import { toast } from 'react-toastify';
 
 class Searchbar extends Component {
   state = {
@@ -13,7 +14,13 @@ class Searchbar extends Component {
   handleSumbit = e => {
     e.preventDefault();
 
-    this.props.onSubmit(this.state.query);
+    const { query } = this.state;
+
+    if (query.trim() === '') {
+      return toast.error('Please enter the key word');
+    }
+
+    this.props.onSubmit(query);
   };
 
   render() {

@@ -1,9 +1,11 @@
 import React, { Component } from 'react';
 import Loader from 'react-loader-spinner';
+import { ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 import './App.css';
 import Searchbar from './components/Searchbar/Searchbar';
-import fetchPhotos from './services/SearchPhotos';
+import requestApi from './services/searchPhotos';
 import ImageGallery from './components/ImageGallery/ImageGallery';
 import Button from './components/Button/Button';
 import Modal from './components/Modal/Modal';
@@ -40,7 +42,7 @@ class App extends Component {
 
     this.setState({ isLoading: true });
 
-    fetchPhotos(options)
+    requestApi(options)
       .then(photos => {
         this.setState(prevState => ({
           photos: [...prevState.photos, ...photos],
@@ -62,7 +64,7 @@ class App extends Component {
   };
 
   openLargePhoto = ({ target }) => {
-    let url = target.dataset.url;
+    const url = target.dataset.url;
     this.setState({
       largeUrl: url,
     });
@@ -78,7 +80,7 @@ class App extends Component {
   };
 
   render() {
-    const { photos, showModal, largeUrl, isLoading } = this.state;
+    const { photos, showModal, largeUrl, isLoading, error } = this.state;
     const shouldRenderLoadMoreButton = photos.length > 0 && !isLoading;
 
     return (
@@ -98,8 +100,12 @@ class App extends Component {
             width={100}
           />
         )}
+        {error && (
+          <p className="error">Whoops, something went wrong: {error.message}</p>
+        )}
         {shouldRenderLoadMoreButton && <Button onClick={this.fetchPhotos} />}
         {showModal && <Modal largeUrl={largeUrl} onClose={this.toggleModal} />}
+        <ToastContainer />
       </>
     );
   }

@@ -210,3 +210,8 @@ img {
 .Loader {
   margin-left: 45%;
 }
+.error {
+  font-size: 50px;
+  margin-left: 70px;
+  font-weight: 700;
+}
